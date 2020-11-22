@@ -21,7 +21,6 @@ RUN \
 USER builder
 RUN \
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
-  && echo '. ~/.cargo/env' >> ~/.bashrc \
   && echo '. <(buildenv init)' >> ~/.bashrc \
   && git config --global user.email "builder@lambda-rust" \
   && git config --global user.name "Lambda Rust Builder"
@@ -39,7 +38,8 @@ RUN sed -i 's/^#DOTCMDS=.*/DOTCMDS=setup/' /etc/buildenv.conf
 
 ENV \
   GIT_BRANCH= \
-  GIT_REPO=https://github.com/anyakichi/lambda-rust-sample.git
+  GIT_REPO=https://github.com/anyakichi/lambda-rust-sample.git \
+  PATH=/home/builder/.cargo/bin:${PATH}
 
 ENTRYPOINT ["/usr/local/sbin/entrypoint"]
 CMD ["/bin/bash"]
