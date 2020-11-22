@@ -14,7 +14,7 @@ RUN \
   && chmod +x /usr/local/bin/gosu
 
 RUN \
-  usermod -l builder ec2-user \
+  usermod -l builder -d /home/builder ec2-user \
   && groupadd -g 1000 builder \
   && mkhomedir_helper builder
 
