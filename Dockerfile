@@ -35,5 +35,11 @@ COPY buildenv/buildenv.sh /usr/local/bin/buildenv
 COPY buildenv/buildenv.conf /etc/
 COPY buildenv.d/ /etc/buildenv.d/
 
+RUN sed -i 's/^#DOTCMDS=.*/DOTCMDS=setup/' /etc/buildenv.conf
+
+ENV \
+  GIT_BRANCH= \
+  GIT_REPO=https://github.com/anyakichi/lambda-rust-sample.git
+
 ENTRYPOINT ["/usr/local/sbin/entrypoint"]
 CMD ["/bin/bash"]
