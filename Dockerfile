@@ -14,28 +14,26 @@ RUN \
   && chmod +x /usr/local/bin/gosu
 
 RUN \
-  groupadd -g 1000 ec2-user \
-  && mkhomedir_helper ec2-user
+  usermod -l builder ec2-user \
+  && groupadd -g 1000 builder \
+  && mkhomedir_helper builder
 
-USER ec2-user
+USER builder
 RUN \
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
   && echo '. ~/.cargo/env' >> ~/.bashrc \
   && echo '. <(buildenv init)' >> ~/.bashrc \
-  && git config --global user.email "ec2-user@lambda-rust" \
+  && git config --global user.email "builder@lambda-rust" \
   && git config --global user.name "Lambda Rust Builder"
 
 USER root
-WORKDIR /home/ec2-user
+WORKDIR /home/builder
 
 COPY buildenv/entrypoint.sh /usr/local/sbin/entrypoint
 COPY buildenv/buildenv.sh /usr/local/bin/buildenv
 
 COPY buildenv/buildenv.conf /etc/
-
-ENV \
-  BUILD_USER=ec2-user \
-  BUILD_GROUP=ec2-user
+COPY buildenv.d/ /etc/buildenv.d/
 
 ENTRYPOINT ["/usr/local/sbin/entrypoint"]
 CMD ["/bin/bash"]
