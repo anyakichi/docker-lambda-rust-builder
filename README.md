@@ -14,8 +14,8 @@ $ docker run -it --rm \
     anyakichi/lambda-rust-builder
 [builder@workspace build]$ extract
 [builder@workspace build]$ setup
-[builder@workspace build]$ build
-[builder@workspace build]$ package
+[builder@workspace lambda-rust-sample]$ build
+[builder@workspace lambda-rust-sample]$ package
 ```
 
 You can use the [din](https://github.com/anyakichi/docker-buildenv/blob/master/din.sh) wrapper script for simplicity.
@@ -25,8 +25,8 @@ $ mkdir workspace && cd workspace
 $ din anyakichi/lambda-rust-builder
 [builder@workspace build]$ extract
 [builder@workspace build]$ setup
-[builder@workspace build]$ build
-[builder@workspace build]$ package
+[builder@workspace lambda-rust-sample]$ build
+[builder@workspace lambda-rust-sample]$ package
 ```
 
 If you want to share cargo caches with host environment, add extra options.
@@ -86,6 +86,24 @@ And access to this from host environment.
 ```
 $ curl -d '{}' http://localhost:9001/2015-03-31/functions/myfunction/invocations
 ```
+
+### (other commands)
+
+And you can execute anything in the container.
+
+Build debug binary:
+
+```
+[builder@workspace lambda-rust-sample]$ cargo build
+```
+
+Run lambda handler passing data from stdin:
+
+```
+[builder@workspace lambda-rust-sample]$ echo '{}' \
+  | DOCKER_LAMBDA_USE_STDIN=1 /var/runtime/init -bootstrap "target/release/lambda-rust-sample"
+```
+
 
 ## Direct mode
 
