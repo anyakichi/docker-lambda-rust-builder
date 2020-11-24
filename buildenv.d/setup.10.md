@@ -1,3 +1,3 @@
 ```
-$ [[ "\$(basename \$(pwd))" == "$(basename -s .git "${GIT_REPO}")" ]] || cd $(basename -s .git "${GIT_REPO}")
+$ [[ -e Cargo.toml ]] || cd $(basename -s .git "${GIT_REPO}")
 ```
