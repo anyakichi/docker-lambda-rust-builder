@@ -1,7 +1,8 @@
-FROM lambci/lambda:build-provided
+ARG tag=build-provided
+FROM lambci/lambda:${tag}
 
 RUN \
-  gosu_version=1.12; \
+  gosu_version=1.13; \
   machine=$(uname -m); \
   arch=${machine/x86_64/amd64}; \
   export GNUPGHOME="$(mktemp -d)"; \
