@@ -38,6 +38,7 @@ COPY buildenv.d/ /etc/buildenv.d/
 RUN sed -i 's/^#DOTCMDS=.*/DOTCMDS=setup/' /etc/buildenv.conf
 
 ENV \
+  FUNCTION_NAME= \
   GIT_BRANCH= \
   GIT_REPO=https://github.com/anyakichi/lambda-rust-sample.git \
   PATH=/home/builder/.cargo/bin:${PATH}
