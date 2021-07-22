@@ -1,4 +1,4 @@
-ARG tag=build-provided
+ARG tag=build-provided.al2
 FROM lambci/lambda:${tag}
 
 RUN \
@@ -21,10 +21,13 @@ RUN \
 
 USER builder
 RUN \
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
-  && echo '. <(buildenv init)' >> ~/.bashrc \
+  echo '. <(buildenv init)' >> ~/.bashrc \
   && git config --global user.email "builder@lambda-rust" \
-  && git config --global user.name "Lambda Rust Builder"
+  && git config --global user.name "Lambda Rust Builder" \
+  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+  && . ~/.cargo/env \
+  && cargo install sccache --features openssl/vendored \
+  && rm -rf ~/.cargo/registry
 
 USER root
 WORKDIR /home/builder
