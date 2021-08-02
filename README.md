@@ -1,27 +1,12 @@
 # docker-lambda-rust-builder
 
-Docker build environment for Rust Runtime for AWS Lambda
-
+[docker-buildenv](https://github.com/anyakichi/docker-buildenv) for Rust
+Runtime on AWS Lambda.
 
 ## How to use
 
 ```
-$ mkdir workspace && cd workspace
-$ docker run -it --rm \
-    -v "$(pwd):/build" \
-    -w "/build" \
-    -h "$(basename "$(pwd)")" \
-    anyakichi/lambda-rust-builder
-[builder@workspace build]$ extract
-[builder@workspace build]$ setup
-[builder@workspace lambda-rust-sample]$ build
-[builder@workspace lambda-rust-sample]$ package
-```
-
-You can use the [din](https://github.com/anyakichi/docker-buildenv/blob/master/din.sh) wrapper script for simplicity.
-
-```
-$ mkdir workspace && cd workspace
+$ mkdir workspace && cd $_
 $ din anyakichi/lambda-rust-builder
 [builder@workspace build]$ extract
 [builder@workspace build]$ setup
@@ -29,13 +14,12 @@ $ din anyakichi/lambda-rust-builder
 [builder@workspace lambda-rust-sample]$ package
 ```
 
-If you want to share cargo caches with host environment, add extra options.
+If you want to share cargo caches with the host environment, add extra options.
 
 ```
 $ din -e CARGO_HOME=/cargo -v $HOME/.cargo:/cargo anyakichi/lambda-rust-builder
 [builder@workspace build]$ build
 ```
-
 
 By default, sample lambda program
 (https://github.com/anyakichi/lambda-rust-sample.git) is downloaded and
@@ -70,21 +54,25 @@ Build the binary.
 
 Create a zip file to upload to Lambda.
 
+### deploy
+
+Deploy a zip file to Lambda.
+
 ### run
 
 Run the lambda function in Docker container.
 
-If you use the run sub command, publish port 9001 to host environment.
+When you use the run sub command, publish port 8080 to the host environment.
 
 ```
-$ din -p 9001:9001 anyakichi/lambda-rust-builder
+$ din -p 8080:8080 anyakichi/lambda-rust-builder
 [builder@workspace build]$ run
 ```
 
-And access to this from host environment.
+And access to this from the host environment.
 
 ```
-$ curl -d '{}' http://localhost:9001/2015-03-31/functions/myfunction/invocations
+$ curl -d '{}' http://localhost:8080/2015-03-31/functions/function/invocations
 ```
 
 ### (other commands)
@@ -97,22 +85,10 @@ Build debug binary:
 [builder@workspace lambda-rust-sample]$ cargo build
 ```
 
-Run lambda handler passing data from stdin:
-
-```
-[builder@workspace lambda-rust-sample]$ echo '{}' \
-  | DOCKER_LAMBDA_USE_STDIN=1 /var/runtime/init -bootstrap "target/release/lambda-rust-sample"
-```
-
-
 ## Direct mode
 
 You can execute sub commands directly from din command.
 
 ```
-$ din -p 9001:9001 anyakichi/lambda-rust-builder run
+$ din -p 8080:8080 anyakichi/lambda-rust-builder run
 ```
-
-## See also
-
-https://github.com/anyakichi/docker-buildenv

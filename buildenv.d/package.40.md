@@ -1,5 +1,4 @@
 ```
 $ . <(buildenv setup)
-$ cp "target/release/$(basename -s .git "${GIT_REPO}")" /tmp/bootstrap
-$ zip -mj $(basename -s .git "${GIT_REPO}").zip /tmp/bootstrap
+$ zip -j lambda.zip target/release/bootstrap
 ```

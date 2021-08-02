@@ -5,9 +5,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        tag: [build-provided, build-provided.al2]
+        tag: [al2, al2-rustup]
     steps:
       - uses: actions/checkout@v2
+        with:
+          submodules: true
       - uses: docker/metadata-action@v3
         id: meta
         with:
@@ -30,6 +32,6 @@ jobs:
         with:
           context: .
           push: ${{ github.ref == 'refs/heads/main' }}
-          build-args: tag=${{ matrix.tag }}
+          build-args: use_rustup=${{ matrix.tag == 'al2-rustup' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}

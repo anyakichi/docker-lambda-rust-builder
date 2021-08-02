@@ -1,5 +1,23 @@
-ARG tag=build-provided.al2
-FROM lambci/lambda:${tag}
+FROM public.ecr.aws/lambda/provided:al2
+ARG use_rustup=false
+
+RUN \
+  yum update -y \
+  && yum install -y \
+    amazon-linux-extras \
+    awscli \
+    gcc \
+    git \
+    shadow-utils \
+    sudo \
+    tar \
+    zip \
+  && if [ $use_rustup != true ]; then \
+      amazon-linux-extras install -y rust1 \
+      && yum install -y clippy rustfmt \
+  ; fi \
+  && yum clean all \
+  && rm -rf /var/cache/yum
 
 RUN \
   gosu_version=1.13; \
@@ -15,24 +33,31 @@ RUN \
   && chmod +x /usr/local/bin/gosu
 
 RUN \
-  usermod -l builder -d /home/builder ec2-user \
-  && groupadd -g 1000 builder \
-  && mkhomedir_helper builder
+  v=v0.2.15; \
+  b=sccache-$v-x86_64-unknown-linux-musl; \
+  curl -LsS https://github.com/mozilla/sccache/releases/download/$v/$b.tar.gz | \
+    tar -xzf - -C /usr/local/bin \
+        --strip-components=1 $b/sccache \
+  && chown root:root /usr/local/bin/sccache \
+  && chmod +x /usr/local/bin/sccache
+
+RUN \
+  /usr/sbin/useradd -K UMASK=022 -ms /bin/bash builder && \
+  echo "builder ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 USER builder
 RUN \
   echo '. <(buildenv init)' >> ~/.bashrc \
   && git config --global user.email "builder@lambda-rust" \
   && git config --global user.name "Lambda Rust Builder" \
-  && curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
-  && . ~/.cargo/env \
-  && cargo install sccache --features openssl/vendored \
-  && rm -rf ~/.cargo/registry
+  && if [ $use_rustup = true ]; then \
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+  ; fi
 
 USER root
 WORKDIR /home/builder
 
-COPY buildenv/entrypoint.sh /usr/local/sbin/entrypoint
+COPY buildenv/entrypoint.sh /buildenv-entrypoint.sh
 COPY buildenv/buildenv.sh /usr/local/bin/buildenv
 
 COPY buildenv/buildenv.conf /etc/
@@ -40,11 +65,15 @@ COPY buildenv.d/ /etc/buildenv.d/
 
 RUN sed -i 's/^#DOTCMDS=.*/DOTCMDS=setup/' /etc/buildenv.conf
 
+COPY entrypoint.sh /
+
 ENV \
   FUNCTION_NAME= \
   GIT_BRANCH= \
   GIT_REPO=https://github.com/anyakichi/lambda-rust-sample.git \
-  PATH=/home/builder/.cargo/bin:${PATH}
+  PATH=/home/builder/.cargo/bin:${PATH}:/usr/sbin:/sbin
 
-ENTRYPOINT ["/usr/local/sbin/entrypoint"]
+EXPOSE 8080
+
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/bash"]
