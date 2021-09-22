@@ -71,7 +71,8 @@ ENV \
   FUNCTION_NAME= \
   GIT_BRANCH= \
   GIT_REPO=https://github.com/anyakichi/lambda-rust-sample.git \
-  PATH=/home/builder/.cargo/bin:${PATH}:/usr/sbin:/sbin
+  PATH=/home/builder/.cargo/bin:${PATH}:/usr/sbin:/sbin \
+  RUSTUP_HOME=/home/builder/.rustup
 
 EXPOSE 8080
 
