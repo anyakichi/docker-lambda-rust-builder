@@ -8,6 +8,7 @@ RUN \
     awscli \
     gcc \
     git \
+    openssl11 \
     shadow-utils \
     sudo \
     tar \
