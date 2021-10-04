@@ -8,7 +8,6 @@ RUN \
     awscli \
     gcc \
     git \
-    openssl11 \
     shadow-utils \
     sudo \
     tar \
@@ -16,6 +15,8 @@ RUN \
   && if [ $use_rustup != true ]; then \
       amazon-linux-extras install -y rust1 \
       && yum install -y clippy rustfmt \
+  ; else \
+      yum install -y openssl-devel \
   ; fi \
   && yum clean all \
   && rm -rf /var/cache/yum
@@ -53,6 +54,9 @@ RUN \
   && git config --global user.name "Lambda Rust Builder" \
   && if [ $use_rustup = true ]; then \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    && . ~/.cargo/env \
+    && cargo install sccache \
+    && rm -rf ~/.cargo/registry \
   ; fi
 
 USER root
