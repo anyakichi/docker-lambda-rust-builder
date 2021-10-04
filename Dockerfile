@@ -54,7 +54,7 @@ RUN \
     curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
     && . ~/.cargo/env \
     && cargo install sccache \
-    && rm -rf ~/.cargo/registry
+    && rm -rf ~/.cargo/registry \
   ; fi
 
 USER root
