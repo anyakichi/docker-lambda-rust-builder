@@ -53,7 +53,8 @@ RUN \
   && git config --global user.email "builder@lambda-rust" \
   && git config --global user.name "Lambda Rust Builder" \
   && if [ $use_rustup = true ]; then \
-    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y \
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+        | sh -s -- -t x86_64-unknown-linux-musl -y \
     && . ~/.cargo/env \
     && cargo install sccache \
     && rm -rf ~/.cargo/registry \
